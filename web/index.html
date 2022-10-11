@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ariadne</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body onload="js_init()">
+    <h5 id="title">Awaiting graph...</h2>
+
+    <div id="search_container">
+      <form onsubmit="event.preventDefault(); handleFuncSearch();">
+        <input id="func_search_input" type="text" placeholder="Function to Find" autocomplete="off">
+        <input id="func_search_submit" type="submit" value="Search">
+      </form>
+    </div>
+
+    <div id="status_display">Initializing...</div>
+
+    <div id="btn_container">
+      <button id="remove_node_btn">Remove Node</button>
+      <button id="remove_descendents_btn">Remove Node&Descendents</button>
+      <button id="redo_layout_btn">Re-Layout</button>
+      <button id="toggle_coverage_btn">Toggle Coverage</button>
+      <button id="hide_imports_btn">Hide Imports</button>
+      <button id="reset_graph_btn">Reset Graph</button>
+    </div>
+
+    <div id="sidebar_container">
+      <div id="sidebar_header">METADATA SIDEBAR</div>
+      <div id="sidebar_contents">
+        <span id="sidebar_title">No function selected</span>
+        <table id="sidebar_table">
+          <thead>
+            <tr>
+              <td>Name</td>
+              <td>Value</td>
+            </tr>
+          </thead>
+          <tbody id="sidebar_table_body">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="graph_container"></div>
+
+    <!-- libraries -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="./dist/cytoscape.min.js"></script>
+    <script src="./dist/klay.js"></script>
+    <script src="./dist/cytoscape-klay.js"></script>
+    <!-- our app -->
+    <script src="./main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,96 @@
+# Ariadne: Graph Helper for Reversing
+
+Binary Ninja plugin that serves a browser-based interactive graph
+visualization for assisting reverse engineers.
+
+![Basic Screenshot](/screenshots/ariadne_screenshot.png)
+
+## Quickstart
+
+1. Clone this repo to your Binary Ninja plugin folder.
+2. Open a binary in Binary Ninja
+3. Right click: Plugins > Ariadne > Analyze Target
+4. Watch the log and wait for analysis to complete
+5. Open a browser and surf to `http://localhost:8800` to view the interactive
+   graph
+6. Navigate around in Binary Ninja the graph will update on function change.
+
+### Graph Style Explanation
+
+- Regular functions are green circles
+- Import functions are diamond-shaped and colored orange
+- Node size is based on cyclomatic complexity; more complex functions are
+  bigger circles
+- The current function active in BN is colored red
+- Functions that you've looked at in the BN UI have light blue borders
+- If you click on a node, it becomes the focus node
+  - The focus node is colored purple
+  - Out edges/nodes (callees) are colored pink
+  - In edges/nodes (calleRs) are colored blue
+  - Clicking on the focus node deselects it
+  - Clicking on another node makes that node the focus node
+
+NOTE: the default graph is a 2-hop neighborhood of the current function _BUT_ it
+will be automatically pruned to a smaller graph if two hops would include too
+many nodes. Use the context menu function graph to push the full context for
+the current function or use networkx to build custom graphs and push them to
+the web UI.
+
+## Motivation
+
+This tool is the result of building something we felt was needed: something that
+was highly configurable but built to help make reverse-engineering faster.
+
+The key insight we found building/using a graph tool is that looking at too many
+nodes is unhelpful and layout matters a lot, so we focused on just the analysis
+results we wanted in the smallest and cleanest view possible.
+
+From there, we built the backend so any graph could be pushed to the backend and
+common graph tasks would be easy. Adding extra analysis tasks is also easy since
+there are places for per-function and target-wide analysis.
+
+## Common Workflows
+
+- Source/Sink analysis: Context command allows you to select a function and see
+  all the paths to/from the current function in the web UI. ![source-sink](/screenshots/source_sink.png)
+- Coverage analysis via bncov: allows visualization of coverage and shows where
+  your coverage stops and uncovered complexity resides. Requires bncov, but if
+  coverage is detected before analysis starts it will automatically be added,
+  or it can be added separately. ![Coverage View](/screenshots/coverage_analysis.png)
+  - The Descendent Complexity statistics ("total" as well as "uncovered") show
+    the sum of complexity for all functions reachable from a given function as
+    well as the sum for just functions with zero coverage. Very useful for
+    fuzzing!
+- Import Hiding: Sometimes imports are helpful, other times they just convolute
+  the graph because it's more important to see just the internal functions
+- Custom graphs: create any graph based on the target's graph (`ariadne.core.targets[bv].g`) and push it to the web UI with `ariadne.core.push_new_graph(new_graph)`
+- Standard styling: the default graph styling allows you to see which functions
+  you have already looked at, which functions are imports, and caller/callee
+  relationships. Helps you see which functions you haven't looked at that may be
+  of interest. ![Breadcrumb demo](screenshots/breadcrumbing.png)
+- Collapsible Function Metadata sidebar: Shows all the relevant static analysis
+  results for any function you click on. ![Focus node view](screenshots/focus_node.png)
+- Function search bar: start typing the name of the function you want to find in
+  the search bar in the upper left, when the name turns green you can stop
+  typing and hit enter to center the graph on the target function.
+- Freezing/unfreezing the graph: sometimes you don't want auto-updates
+- Save/Load analysis: redoing analysis is no good; headless analysis and
+  save/load features allow you to crunch binaries on a separate machine if you
+  want.
+
+## Troubleshooting
+
+If the web UI is unresponsive, check the websocket status in the upper right
+corner. If you push a really large graph to the web UI, the page may freeze
+while the graph layout is computed. In any case, refreshing the page should
+reset the UI.
+
+Unhandled Python exceptions on startup or during processing are bugs and it'd be
+great if you would open a GitHub issue and describe the problem (and include a
+binary to reproduce the problem, if possible).
+
+## Thank you!
+
+To everyone who enjoys this tool, it would mean a lot to me if let me know by
+reaching out on Twitter or starring this repo. I hope this work helps you or
+makes you look at things a little differently.

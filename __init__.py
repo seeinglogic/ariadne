@@ -1,0 +1,1 @@
+from .ariadne.plugin import *
