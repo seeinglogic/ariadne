@@ -57,8 +57,8 @@ rules for element (nodes and edges) styling are:
 Starting in the upper left and going clockwise you'll see the following UI
 elements/controls:
 
-- Function searc bar
-- Graph title
+- Function search bar
+- Title of current graph
 - Websocket connection status
 - Graph control buttons
 - Metadata sidebar
@@ -105,8 +105,10 @@ uses [bncov](https://github.com/ForAllSecure/bncov.git) for coverage analysis,
 so in order to visualize coverage, you must install bncov (either by cloning the
 repo or using the included `download_bncov.py` script). Second, you must also
 have or collect coverage files for your target in one of the formats supported
-by bncov such as `drcov` (from DynamoRio, or Lighthouse's pin tool) or
-`module+offset` (from windbg), such as the ones included in this directory.
+by bncov such as `drcov` (from DynamoRio, or Lighthouse's Pin tool) or
+`module+offset` (from
+[windbg](https://github.com/0vercl0k/windbg-scripts/tree/master/codecov)),
+such as the ones included in this directory.
 
 The short steps to coverage visualization in the web UI are:
 
@@ -208,25 +210,27 @@ function name and hit `OK`. You should immediately see a graph that shows how
 main calls `readloop`, which in turn starts to call more and more specific http
 handling functions.
 
-This kind of analysis is sometimes linear but can also be more complex, in which
-case the web UI really shines. Try this functionality out on some functions of
+Source/sink analysis sometimes shows a linear path but can also be more complex
+and include many paths between related functions, which is where using the web
+UI really helps. Try this functionality out on some functions of
 your choosing (`send_basic_response` or `convert_pcnts` are easy examples).
 
 In addition, you can also permanently ban functions from being displayed on the
 web UI and you can freeze/unfreeze the web UI to keep the graph from changing
 via the following functions:
 
-- ariadne.core.target.ban_function_from_graph(Function)
-- ariadne.core.target.ban_set_from_graph(Iterable[Function])
-- ariadne.core.target.unban_function(Function)
+- ariadne.core.target.ban_function_from_graph( Function )
+- ariadne.core.target.ban_set_from_graph( Iterable[Function] )
+- ariadne.core.target.unban_function( Function )
 - ariadne.core.freeze_graph()
 - ariadne.core.unfreeze_graph()
 
 ### Custom Graphs
 
 Ariadne allows users to generate arbitrary subgraphs of the target's callgraph
-and push them to the web UI. The graph object is a networkx DiGraph, so users
-can make arbitrary graphs and display them. For example, you can generate the
+and push them to the web UI. The underlying graph object is a networkx DiGraph,
+so users can manipulate it to make arbitrary graphs and display them. For
+example, you can generate the
 N-hop neighborhood for the current function without the default limit of how
 many nodes are displayed by running the following commands in the Binary Ninja
 Python console:
@@ -265,15 +269,16 @@ not include imported functions in the graph.
 
 ```python
 # Start with the two functions, they may not be "ancestors" themselves
-shared_ancestors = set([readtoken, send_file])
-shared_ancestors |= nx.ancestors(cur_target.g, readtoken)
-shared_ancestors |= nx.ancestors(cur_target.g, send_file)
+ancestors_union = set([readtoken, send_file])
+ancestors_union |= nx.ancestors(cur_target.g, readtoken)
+ancestors_union |= nx.ancestors(cur_target.g, send_file)
 
-# We can use the function metadata to filter nodes
+# We can use the function metadata to filter out imports
+# It doesn't change the final result in this example,
+# but any metadata could be used to filter and select nodes/edges
 non_imports = [f for f in cur_target.function_dict if cur_target.function_dict[f].is_import() == False]
-# It doesn't change the final result here, but any metadata could be used
-shared_ancestors = shared_ancestors.intersection(set(non_imports))
-shared_graph = nx.subgraph(undirected, shared_ancestors)
+ancestors_union = ancestors_union.intersection(set(non_imports))
+shared_graph = nx.subgraph(undirected, ancestors_union)
 
 shortest_path = nx.shortest_path(shared_graph, readtoken, send_file)
 shortest_path_graph = nx.subgraph(cur_target.g, shortest_path)
@@ -290,9 +295,9 @@ that saving the analysis results to a file and and loading it will be faster
 than recomputing the analysis.
 
 The save and load functions are accessible via the context menu actions, and
-the analysis files will be saved in the `cache` directory inside the plugin
-directory. Relevant files are recognized by the filename of the targets, so if
-you have multiple targets named the same thing, you'll want to rename them or
+the analysis files will be saved in the `cache` directory inside the root of
+this repo. Relevant files are recognized by the filename of the targets, so if
+you have multiple targets with the same name, you'll want to rename them or
 otherwise work around the name collisions. If a saved analysis file is detected
 when analysis is requested, a prompt will confirm whether to load from file or
 perform a fresh analysis.

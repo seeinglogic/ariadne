@@ -1,21 +1,28 @@
-# Ariadne: Graph Helper for Reversing
+# Ariadne: Binary Ninja Graph Analysis Plugin
 
-Binary Ninja plugin that serves a browser-based interactive graph
+Ariadne is a Binary Ninja plugin that serves a browser-based interactive graph
 visualization for assisting reverse engineers.
 
-![Basic Screenshot](/screenshots/ariadne_screenshot.png)
+![Demo Screen Capture](/screenshots/demo.gif)
 
 ## Quickstart
 
-1. Clone this repo to your Binary Ninja plugin folder.
+1. Install this plugin via the Plugin Manager or clone this repo to your Binary Ninja [plugins folder](https://docs.binary.ninja/getting-started.html#user-folder)
+  - NOTE: If installing via cloning, you may need to install the Python
+  dependencies in `requirements.txt`. Use the command palette (`CTRL+P` or
+  equivalent) to do `Install Python3 module` and copy the contents of
+  requirements.txt into the dialog.
 2. Open a binary in Binary Ninja
 3. Right click: Plugins > Ariadne > Analyze Target
 4. Watch the log and wait for analysis to complete
 5. Open a browser and surf to `http://localhost:8800` to view the interactive
-   graph
-6. Navigate around in Binary Ninja the graph will update on function change.
+   graph (web UI)
+6. Navigate around in Binary Ninja; the graph will update when the current
+   function changes
 
-### Graph Style Explanation
+## Graph Styling
+
+The quick rundown of what the shapes and colors:
 
 - Regular functions are green circles
 - Import functions are diamond-shaped and colored orange
@@ -33,13 +40,15 @@ visualization for assisting reverse engineers.
 NOTE: the default graph is a 2-hop neighborhood of the current function _BUT_ it
 will be automatically pruned to a smaller graph if two hops would include too
 many nodes. Use the context menu function graph to push the full context for
-the current function or use networkx to build custom graphs and push them to
+the current function or use
+[networkx](https://networkx.org/) to build custom graphs and push them to
 the web UI.
 
 ## Motivation
 
-This tool is the result of building something we felt was needed: something that
-was highly configurable but built to help make reverse-engineering faster.
+This tool is a proof-of-concept that was built to fill a gap that we observed in
+our own reverse-engineering workflows, with the goals of being highly
+configurable and to help make reverse-engineering faster.
 
 The key insight we found building/using a graph tool is that looking at too many
 nodes is unhelpful and layout matters a lot, so we focused on just the analysis
@@ -53,10 +62,11 @@ there are places for per-function and target-wide analysis.
 
 - Source/Sink analysis: Context command allows you to select a function and see
   all the paths to/from the current function in the web UI. ![source-sink](/screenshots/source_sink.png)
-- Coverage analysis via bncov: allows visualization of coverage and shows where
-  your coverage stops and uncovered complexity resides. Requires bncov, but if
-  coverage is detected before analysis starts it will automatically be added,
-  or it can be added separately. ![Coverage View](/screenshots/coverage_analysis.png)
+- Coverage analysis via [bncov](https://github.com/ForAllSecure/bncov): allows
+  visualization of coverage and shows where your coverage stops and uncovered
+  complexity resides. Requires bncov, but if coverage information is detected
+  before analysis starts it will automatically be added, or it can be added
+  separately. ![Coverage View](/screenshots/coverage_analysis.png)
   - The Descendent Complexity statistics ("total" as well as "uncovered") show
     the sum of complexity for all functions reachable from a given function as
     well as the sum for just functions with zero coverage. Very useful for
@@ -77,6 +87,9 @@ there are places for per-function and target-wide analysis.
 - Save/Load analysis: redoing analysis is no good; headless analysis and
   save/load features allow you to crunch binaries on a separate machine if you
   want.
+
+See the [tutorial](./tutorial/README.md) for detailed explanation of features
+and intended workflows that you can test out on an example binary.
 
 ## Troubleshooting
 

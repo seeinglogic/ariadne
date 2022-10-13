@@ -29,4 +29,11 @@ os.chdir(plugin_dir)
 git_clone_command = f'git clone {bncov_repo_url}'
 print(f'[*] Running: "{git_clone_command}"')
 retval = os.system(git_clone_command)
-print(f'[*] Return code of git clone command: {retval}')
+if retval != 0:
+    print(f'[*] Return code of git clone command: {retval}')
+else:
+    bncov_path = os.path.abspath('bncov')
+    if os.path.exists('bncov'):
+        print(f'[+] bncov successfully installed to {bncov_path}')
+    else:
+        print(f'[!] bncov not found at "{bncov_path}", check the output above')

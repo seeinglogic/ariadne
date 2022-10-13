@@ -181,7 +181,7 @@ class AriadneTarget():
                         neighbors.update(new_neighbors)
                     cur_level.add(cur_node_func)
             # Enforce max_nodes check on levels beyond the first
-            if max_nodes is None or i == 0 or len(to_add) + len(cur_level) < max_nodes:
+            if max_nodes is None or i <= 1 or len(to_add) + len(cur_level) < max_nodes:
                 to_add.update(cur_level)
             else:
                 break
