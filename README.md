@@ -1,7 +1,10 @@
 # Ariadne: Binary Ninja Graph Analysis Plugin
 
 Ariadne is a Binary Ninja plugin that serves a browser-based interactive graph
-visualization for assisting reverse engineers.
+visualization for assisting reverse engineers. It implements some common static
+analysis tasks including call graph analysis, and can integrate block coverage
+information. This enables users to build interactive graphs and see exactly what
+they are interested in.
 
 ![Demo Screen Capture](/screenshots/demo.gif)
 
@@ -22,7 +25,7 @@ visualization for assisting reverse engineers.
 
 ## Graph Styling
 
-The quick rundown of what the shapes and colors:
+The quick rundown on what the shapes and colors on the graph mean:
 
 - Regular functions are green circles
 - Import functions are diamond-shaped and colored orange
