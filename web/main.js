@@ -569,8 +569,8 @@ function renderCytoscape(model){
         elements: model.elements, // list of graph elements (nodes and edges)
         layout: default_layout,
         wheelSensitivity: 0.45,
-        minZoom: 0.1,
-        maxZoom: 5,
+        /* minZoom: 0.1, */
+        /* maxZoom: 5, */
 
         // default style located at: cy.style()._private.defaultProperties
         style: [
