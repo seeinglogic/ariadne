@@ -6,12 +6,13 @@ analysis tasks including call graph analysis, and can integrate block coverage
 information. This enables users to build interactive graphs and see exactly what
 they are interested in.
 
-![Demo Screen Capture](/screenshots/demo.gif)
+![Demo Screen Capture](screenshots/demo.gif)
 
 ## Quickstart
 
-1. Install this plugin via the Plugin Manager or clone this repo to your Binary Ninja [plugins folder](https://docs.binary.ninja/getting-started.html#user-folder)
-  - NOTE: If installing via cloning, you may need to install the Python
+1. Install this plugin via the Plugin Manager or clone this repo to your Binary
+  Ninja [plugins folder](https://docs.binary.ninja/getting-started.html#user-folder)
+  - NOTE: If you install by cloning the repo, you may need to install the Python
   dependencies in `requirements.txt`. Use the command palette (`CTRL+P` or
   equivalent) to do `Install Python3 module` and copy the contents of
   requirements.txt into the dialog.
@@ -64,12 +65,12 @@ there are places for per-function and target-wide analysis.
 ## Common Workflows
 
 - Source/Sink analysis: Context command allows you to select a function and see
-  all the paths to/from the current function in the web UI. ![source-sink](/screenshots/source_sink.png)
+  all the paths to/from the current function in the web UI. ![source-sink](screenshots/source_sink.png)
 - Coverage analysis via [bncov](https://github.com/ForAllSecure/bncov): allows
   visualization of coverage and shows where your coverage stops and uncovered
   complexity resides. Requires bncov, but if coverage information is detected
   before analysis starts it will automatically be added, or it can be added
-  separately. ![Coverage View](/screenshots/coverage_analysis.png)
+  separately. ![Coverage View](screenshots/coverage_analysis.png)
   - The Descendent Complexity statistics ("total" as well as "uncovered") show
     the sum of complexity for all functions reachable from a given function as
     well as the sum for just functions with zero coverage. Very useful for
@@ -102,11 +103,12 @@ while the graph layout is computed. In any case, refreshing the page should
 reset the UI.
 
 Unhandled Python exceptions on startup or during processing are bugs and it'd be
-great if you would open a GitHub issue and describe the problem (and include a
-binary to reproduce the problem, if possible).
+great if you would open a GitHub issue on the repo here and describe the problem
+(and include a binary to reproduce the problem, if possible).
 
 ## Thank you!
 
-To everyone who enjoys this tool, it would mean a lot to me if let me know by
-reaching out on Twitter or starring this repo. I hope this work helps you or
-makes you look at things a little differently.
+To everyone who tries out this tool, it would mean a lot to me if you reach out
+and give me your thoughts on Twitter (@seeinglogic) or starring this repo. I
+hope this helps you or gives you ideas on how to look at things a little
+differently.
