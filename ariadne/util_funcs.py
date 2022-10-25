@@ -37,3 +37,11 @@ def log_warn(msg: str, tag: str='ARIADNE'):
 
 def log_error(msg: str, tag: str='ARIADNE'):
     bn_log_error(msg, tag)
+
+
+def get_repo_dir() -> Path:
+    cur_file = Path(__file__)
+    return cur_file.parent.parent.absolute()
+
+def get_web_dir() -> str:
+    return get_repo_dir().joinpath('web')

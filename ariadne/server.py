@@ -9,15 +9,43 @@ from typing import Any, Dict
 import asyncio
 import json
 import os
+from pathlib import Path
 import websockets
 
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from threading import Thread
 
-from .util_funcs import log_info, log_error
+from .util_funcs import log_info, log_error, get_web_dir
+
+
+# Ports are per-Binary Ninja instance (which has its own Python interpreter)
+instance_http_port: int = -1
+instance_websocket_port: int = -1
 
 
 class AriadneHTTPHandler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        """Serve a GET request (with specific fix for JS)."""
+        path = Path(self.translate_path(self.path))
+
+        # For nonstandard websocket ports, fix it in the JS on the fly
+        if instance_websocket_port != 7890 and path.parent.name == 'web' and path.name == 'main.js':
+            with open(path) as js_file:
+                js_contents = js_file.read()
+                js_contents = js_contents.replace('server_port = 7890', f'server_port = {instance_websocket_port}')
+
+            # Write the contents to a new file, then change the path to match it
+            new_name = f'{path.stem}-{instance_websocket_port}{path.suffix}'
+            new_file = path.with_name(new_name)
+            with open(new_file, 'w') as nf:
+                nf.write(js_contents)
+
+            # self.path is relative to web/ as the root
+            override_path = f'/{new_file.name}'
+            self.path = str(override_path)
+
+        super().do_GET()
+
     def log_message(self, format: str, *args: Any) -> None:
         # Uncomment to see resources being requested
         #log_info(format % args, 'ARIADNE:HTTP')
@@ -26,9 +54,7 @@ class AriadneHTTPHandler(SimpleHTTPRequestHandler):
 
 def run_http_server(address: str, port: int):
     handler = AriadneHTTPHandler
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    web_dir = os.path.join(current_dir, '..', 'web')
-    os.chdir(web_dir)
+    os.chdir(get_web_dir())
     with HTTPServer((address, port), handler) as httpd:
         log_info(f'Serving web UI at http://{address}/{port}', 'ARIADNE:HTTP')
         httpd.serve_forever()
@@ -43,7 +69,6 @@ async def websocket_handler(websocket, path):
     while json_contents is None:
         await asyncio.sleep(0.1)
 
-    log_info(f'JSON loaded: {len(json_contents)} bytes', 'ARIADNE:WS')
     # FUTURE: switch from polling model to async
     prev_json = None
     try:
@@ -65,6 +90,8 @@ class AriadneServer():
         self.websocket_port = websocket_port
 
     def start_webserver(self):
+        global instance_http_port
+        instance_http_port = self.http_port
         self.http_thread = Thread(
             target=run_http_server,
             args=(self.ip, self.http_port),
@@ -73,6 +100,8 @@ class AriadneServer():
         self.http_thread.start()
 
     def start_websocket_server(self):
+        global instance_websocket_port
+        instance_websocket_port = self.websocket_port
         self.websocket_thread = Thread(
             target=self.run_websocket_server,
             args=tuple(),
