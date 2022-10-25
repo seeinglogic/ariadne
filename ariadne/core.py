@@ -1,13 +1,14 @@
 from typing import Dict, List, Tuple, Optional
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
+import socket
 import time
 import networkx as nx
 
 from binaryninja import BinaryView, Function, BackgroundTaskThread, get_choice_input
 
 from .analysis.ariadne_function import AriadneFunction, get_analyzed_function
-from .util_funcs import short_name, log_info, log_warn, log_error, func_name
+from .util_funcs import short_name, log_info, log_warn, log_error, func_name, get_repo_dir
 from .target import AriadneTarget
 from .server import AriadneServer
 
@@ -106,16 +107,16 @@ class BackgroundAnalysis(BackgroundTaskThread):
 class AriadneCore():
     def __init__(self, ip='127.0.0.1', http_port=8800, websocket_port=7890):
         self.ip = ip
-        self.http_port = http_port
-        self.websocket_port = websocket_port
+        self.http_port = self.find_next_open_port(http_port)
+        self.websocket_port = self.find_next_open_port(websocket_port)
         self.bvs = []
         self.analysis_tasks: Dict[BinaryView, BackgroundAnalysis] = {}
         self.current_function_map: Dict[BinaryView, Function] = {}
         self.targets: Dict[BinaryView, AriadneTarget] = {}
         self.history_cache: Dict[BinaryView, List[Function]] = {}
-        self.server = AriadneServer(ip, http_port, websocket_port)
+        self.server = AriadneServer(ip, self.http_port, self.websocket_port)
         self.graph_frozen = False
-        self.cache_dir = Path(__file__).parent.parent / 'cache'
+        self.cache_dir = get_repo_dir().joinpath('cache')
         self.current_bv: Optional[BinaryView] = None
         # FUTURE: expose these as plugin settings
         self.neighborhood_hops = 3
@@ -123,6 +124,26 @@ class AriadneCore():
         log_info(f'Instantiated AriadneCore')
         if not coverage_enabled:
             log_info(f'Download the bncov plugin in order to enable coverage analysis')
+
+    def find_next_open_port(self, port: int) -> int:
+        """Find the next best port for the server.
+
+        NOTE: There will only be one server per process, but could be more than
+        one window, each with its own separate Python interpreter
+        """
+        MAX_PORT = 65535
+        orig_port = port
+
+        while port <= MAX_PORT:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                if s.connect_ex(('localhost', port)) != 0:
+                    break
+            port += 1
+
+        if port > MAX_PORT:
+            raise Exception(f'No open ports between {orig_port} and {MAX_PORT}')
+
+        return port
 
     def start_server(self):
         self.server.start_webserver()

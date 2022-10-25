@@ -58,8 +58,6 @@ class AriadneFuncWidget(QWidget, DockContextHandler):
 
         textbox_layout.addWidget(self.textbox, 0)
 
-        log_info(f'Web UI hosted at: http://127.0.0.1:8800/index.html')
-
         layout =  QVBoxLayout()
         layout.addLayout(header_layout)
         layout.addLayout(textbox_layout)
