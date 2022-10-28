@@ -33,6 +33,9 @@ The quick rundown on what the shapes and colors on the graph mean:
 - Node size is based on cyclomatic complexity; more complex functions are
   bigger circles
 - The current function active in BN is colored red
+- Nodes with double borders mean they have edges that weren't included for the
+  current graph (default: local neighborhood for active function in BN, see note
+  below)
 - Functions that you've looked at in the BN UI have light blue borders
 - If you click on a node, it becomes the focus node
   - The focus node is colored purple

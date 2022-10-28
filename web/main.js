@@ -36,6 +36,7 @@ var dark_green = '#1b4325';
 var orange = '#EDBD80';
 var light_grey = '#909090';
 var subtle_grey = '#707070';
+var darker_subtle_grey = '#606060';
 var grey = '#4a4a4a';
 var dark_grey = '#2a2a2a';
 var white = '#e0e0e0';
@@ -579,7 +580,7 @@ function renderCytoscape(model){
                 style: {
                 'background-color': light_green,
                 'label': 'data(label)',
-                'border-color': grey,
+                'border-color': subtle_grey,
                 'border-width': 3,
                 'width': size_jumbo,
                 'height': size_jumbo,
@@ -588,10 +589,17 @@ function renderCytoscape(model){
             {
                 selector: 'edge',
                 style: {
-                'line-color': subtle_grey,
-                'target-arrow-color': subtle_grey,
+                'line-color': darker_subtle_grey,
+                'target-arrow-color': darker_subtle_grey,
                 'target-arrow-shape': 'triangle',
                 'curve-style': 'bezier',
+                }
+            },
+            {
+                selector: 'node[edges_not_shown > 0]',
+                style: {
+                    'border-style': 'double',
+                    'border-width': 5,
                 }
             },
             {

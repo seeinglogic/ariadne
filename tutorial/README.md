@@ -46,6 +46,9 @@ rules for element (nodes and edges) styling are:
   [cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity);
   more complex functions are bigger circles
 - The current function active in Binary Ninja is colored red
+- Nodes with double borders mean they have edges that weren't included for the
+  current graph (default: local neighborhood for active function in BN, see note
+  below)
 - Functions that you've looked at in the Binary Ninja UI have light blue borders
 - If you click on a node, it becomes the focus node:
   - The focus node is colored purple
@@ -171,10 +174,13 @@ cur_target.function_dict[main].metadata['blocks_covered']
 
 If you followed along to this point, you should see that the `main` function has
 partial block coverage, while the socket related functions are uncovered. If you
-click on the `readloop` function, you'll see that while it is fully covered, the
-uncovered descendent complexity is very large, which suggests that there is a
-lot of unreached code in its descendent functions (which are not currently shown
-in web UI). If you then navigate to `readloop` in Binary Ninja, you'll see the
+click on the `readloop` function, you'll see that while it is fully covered, it
+has the telltale double-border which means it has more edges than is currently
+shown. In addition, the uncovered descendent complexity is very large, which
+suggests that there is a lot of unreached code in its descendent functions
+(which are not currently shown in web UI).
+
+If you then navigate to `readloop` in Binary Ninja, you'll see the
 graph update and show more of the context "lower" in the callgraph, and you're
 on the path to discovering what complex functions are partially or completely
 uncovered. This kind of analysis is very helpful for improving coverage for
