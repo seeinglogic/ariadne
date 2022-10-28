@@ -135,6 +135,8 @@ class AriadneTarget():
                 'callsite_coverage': self.function_dict[cur_func].metadata.get('callsite_coverage'),
                 'descendent_complexity': self.function_dict[cur_func].metadata.get('descendent_complexity'),
                 'uncovered_descendent_complexity': self.function_dict[cur_func].metadata.get('uncovered_descendent_complexity'),
+                # Hint for the user that there's more to see from this node
+                'edges_not_shown': abs(graph.degree(cur_func) - self.g.degree(cur_func)),
             }
             for cur_func in graph.nodes
         }
@@ -150,9 +152,9 @@ class AriadneTarget():
                 for cur_func in graph.nodes
             }
 
-        current_function = self.current_function
-        if current_function and current_function in graph:
-            node_metadata[self.current_function]['current_function'] = 1
+        bn_active_function = self.current_function
+        if bn_active_function and bn_active_function in graph:
+            node_metadata[bn_active_function]['current_function'] = 1
 
         cyto_json = graph_to_cytoscape(graph, node_metadata, edge_metadata)
         return cyto_json
