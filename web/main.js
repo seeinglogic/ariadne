@@ -109,13 +109,28 @@ function update_status() {
     status_elem = document.getElementById(status_element_name);
     if (status_elem) {
         var status = 'Inactive';
+        var cur_color = light_grey;
+
         if (typeof(websock) == 'object') {
-            if      (websock.readyState == 0) { status = 'Connecting...'; }
-            else if (websock.readyState == 1) { status = 'Connected'; }
-            else if (websock.readyState == 2) { status = 'Closing'; }
-            else if (websock.readyState == 3) { status = 'Closed'; }
+            if      (websock.readyState == 0) {
+                status = 'Connecting...';
+            }
+            else if (websock.readyState == 1) {
+                status = 'Connected';
+                cur_color = white;
+            }
+            else if (websock.readyState == 2) {
+                status = 'Closing';
+            }
+            else if (websock.readyState == 3) {
+                status = 'Closed';
+                cur_color = red;
+            }
         }
+
         status_elem.innerHTML = `Websocket ${status}`;
+        status_elem.style.color = cur_color;
+
     }
     else {
         console.log(`WARNING: update_status(): getElementById("${status_element_name}") failed`);
