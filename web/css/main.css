@@ -32,11 +32,10 @@ input[type=submit] {
 }
 
 #graph_container {
-    width: 100vw;
-    height: 100vh;
+    width: 99.25vw;
+    height: 99.25vh;
     margin: 4px;
     position: relative;
-    outline: 2px solid #909090;
 }
 #search_container {
     position: absolute;
@@ -94,7 +93,7 @@ tr, td, thead, tbody {
 
 #btn_container {
     position: absolute;
-    right: 0;
+    right: 0.2em;
     bottom: 0;
     z-index: 998;
 
