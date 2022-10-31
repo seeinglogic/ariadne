@@ -180,7 +180,8 @@ shown. In addition, the uncovered descendent complexity is very large, which
 suggests that there is a lot of unreached code in its descendent functions
 (which are not currently shown in web UI).
 
-If you then navigate to `readloop` in Binary Ninja, you'll see the
+If you then navigate to `readloop` in Binary Ninja or using clicking it and
+using the "Graph Focus Function" button, you'll see the
 graph update and show more of the context "lower" in the callgraph, and you're
 on the path to discovering what complex functions are partially or completely
 uncovered. This kind of analysis is very helpful for improving coverage for
