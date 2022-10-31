@@ -350,7 +350,7 @@ class AriadneCore():
         covdb = bncov.get_covdb(bv)
         num_files = len(covdb.coverage_files)
         if num_files == 0:
-            log_error('No coverage files imported, cannot do coverage analysis')
+            log_error('No coverage files in bncov, cannot do coverage analysis')
             return
 
         target = self.targets[bv]
