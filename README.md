@@ -94,6 +94,9 @@ there are places for per-function and target-wide analysis.
 - Save/Load analysis: redoing analysis is no good; headless analysis and
   save/load features allow you to crunch binaries on a separate machine if you
   want.
+- Callgraph exploration: using the web UI's `Graph Focus Function` button, now
+  you can see what nodes aren't fully expanded in the current view and navigate
+  between functions from within the web UI.
 
 See the [tutorial](./tutorial/README.md) for detailed explanation of features
 and intended workflows that you can test out on an example binary.
