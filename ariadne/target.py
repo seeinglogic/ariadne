@@ -114,6 +114,7 @@ class AriadneTarget():
         node_metadata: Dict[Function, Dict[str, Any]] = {
             cur_func: {
                 # Metadata shown in this order
+                'start': cur_func.start,
                 'args': self.function_dict[cur_func].metadata['args'],
                 'return_type': self.function_dict[cur_func].metadata['return_type'],
                 'blocks': self.function_dict[cur_func].metadata['blocks'],
@@ -312,9 +313,10 @@ class AriadneTarget():
     def mark_coverage_analysis_finished(self):
         self.coverage_available = True
 
-    def set_current_function(self, function: Function):
+    def set_current_function(self, function: Function, do_visit: bool = True):
         self.current_function = function
-        self.mark_visited(function)
+        if do_visit:
+            self.mark_visited(function)
 
     def mark_visited(self, function: Function):
         ariadne_function = self.function_dict[function]

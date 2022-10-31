@@ -15,12 +15,13 @@ import websockets
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from threading import Thread
 
-from .util_funcs import log_info, log_error, get_web_dir
+from .util_funcs import log_info, log_error, get_web_dir, short_name
 
 
 # Ports are per-Binary Ninja instance (which has its own Python interpreter)
 instance_http_port: int = -1
 instance_websocket_port: int = -1
+server_instance = None
 
 
 class AriadneHTTPHandler(SimpleHTTPRequestHandler):
@@ -60,10 +61,19 @@ def run_http_server(address: str, port: int):
         httpd.serve_forever()
 
 
+# The two global strings for websocket send/recv
 json_contents = None
+client_msg = None
+
+
+async def read_client(websocket):
+    global client_msg
+    # This will time out if the client doesn't send any messages
+    client_msg = await websocket.recv()
+
 
 async def websocket_handler(websocket, path):
-    global json_contents
+    global json_contents, client_msg
     log_info('Websocket Client connected', 'ARIADNE:WS')
     # Wait until graph JSON is available
     while json_contents is None:
@@ -73,18 +83,39 @@ async def websocket_handler(websocket, path):
     prev_json = None
     try:
         while True:
-            await websocket.send(json_contents)
-            # Uncomment to see size of each JSON update being sent out
-            #log_info(f'JSON sent, {len(json_contents)} bytes', 'ARIADNE:WS')
-            prev_json = json_contents
-            while prev_json == json_contents:
-                await asyncio.sleep(0.1)
+            # Tell the core to graph a new function
+            if client_msg:
+                try:
+                    client_dict = json.loads(client_msg)
+                    bv_name = client_dict['bv']
+                    start_addr = client_dict['start']
+                    server_instance.core.graph_new_neighborhood(bv_name, start_addr)
+                except Exception as e:
+                    log_error(f'websocket_handler: client_msg handling exception: "{e}"')
+                    # the JSON object must be str, bytes or bytearray not coroutine
+                client_msg = None
+
+            # Send the new graph data to the web UI
+            if prev_json != json_contents:
+                await websocket.send(json_contents)
+                # Uncomment to see size of each JSON update being sent out
+                #log_info(f'JSON sent, {len(json_contents)} bytes', 'ARIADNE:WS')
+                prev_json = json_contents
+
+            # Either the core will set json_contents or read_client will set client_msg
+            while prev_json == json_contents and client_msg is None:
+                try:
+                    await asyncio.wait_for(read_client(websocket), timeout=0.1)
+                except asyncio.exceptions.TimeoutError:
+                    pass
+                await asyncio.sleep(0)
     except websockets.exceptions.ConnectionClosedError as e:
         log_info(f'Client connection closed with code {e.code}', 'ARIADNE:WS')
 
 
 class AriadneServer():
-    def __init__(self, ip: str, http_port: int, websocket_port: int):
+    def __init__(self, core, ip: str, http_port: int, websocket_port: int):
+        self.core = core  # AriadneCore
         self.ip = ip
         self.http_port = http_port
         self.websocket_port = websocket_port
@@ -100,8 +131,10 @@ class AriadneServer():
         self.http_thread.start()
 
     def start_websocket_server(self):
-        global instance_websocket_port
+        global instance_websocket_port, server_instance
         instance_websocket_port = self.websocket_port
+        server_instance = self
+
         self.websocket_thread = Thread(
             target=self.run_websocket_server,
             args=tuple(),
@@ -109,9 +142,10 @@ class AriadneServer():
         )
         self.websocket_thread.start()
 
-    def set_graph_data(self, json_obj: Dict[str, Any], title: str):
+    def set_graph_data(self, bv, json_obj: Dict[str, Any], title: str):
         global json_contents
         json_obj['title'] = title
+        json_obj['bv'] = short_name(bv)
         json_str = json.dumps(json_obj)
         json_contents = json_str
 

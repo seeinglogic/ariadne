@@ -114,7 +114,7 @@ class AriadneCore():
         self.current_function_map: Dict[BinaryView, Function] = {}
         self.targets: Dict[BinaryView, AriadneTarget] = {}
         self.history_cache: Dict[BinaryView, List[Function]] = {}
-        self.server = AriadneServer(ip, self.http_port, self.websocket_port)
+        self.server = AriadneServer(self, ip, self.http_port, self.websocket_port)
         self.graph_frozen = False
         self.cache_dir = get_repo_dir().joinpath('cache')
         self.current_bv: Optional[BinaryView] = None
@@ -297,9 +297,42 @@ class AriadneCore():
         graph_title = f'Neighborhood of "{func_name(current_function)}"'
 
         cytoscape_obj = analysis_result.get_cytoscape(neighborhood_graph)
-        self.server.set_graph_data(cytoscape_obj, graph_title)
+        self.server.set_graph_data(bv, cytoscape_obj, graph_title)
 
         log_info(f'Navigate to http://{self.ip}:{self.http_port} for interactive graph')
+
+    def graph_new_neighborhood(self, bv_name: str, start: int):
+        """Push the neighborhood of the specified function to the graph.
+
+        Primarily to allow clients to drive the web UI."""
+
+        if short_name(self.current_bv) == bv_name:
+            bv = self.current_bv
+        else:
+            bv = None
+            for iter_bv in self.targets:
+                if short_name(iter_bv) == bv_name:
+                    bv = iter_bv
+                    break
+            if bv is None:
+                log_error(f'graph_new_neighborhood: Could not find bv_name "{bv_name}"')
+                return
+        cur_target = self.targets[bv]
+
+        cur_func = bv.get_function_at(start)
+        if cur_func is None:
+            log_error(f'graph_new_neighborhood: Could not find function starting at "{hex(start)}"')
+            return
+
+        # Style the new function as the "current function" in the graph
+        cur_target.set_current_function(cur_func, do_visit=False)
+
+        neighborhood_graph = cur_target.get_near_neighbors(cur_func, self.neighborhood_hops, self.max_nodes_to_show)
+        graph_title = f'Neighborhood of "{func_name(cur_func)}"'
+
+        cytoscape_obj = cur_target.get_cytoscape(neighborhood_graph)
+        self.server.set_graph_data(bv, cytoscape_obj, graph_title)
+
 
     def do_coverage_analysis(self, bv: BinaryView):
         """Import coverage data from bncov manually"""
@@ -374,7 +407,7 @@ class AriadneCore():
                 log_info(f'Current ({func_name(function)}) func neighborhood: {num_nodes} nodes, {num_edges} edges')
                 graph_title = f'Neighborhood of {func_name(function)}'
                 cytoscape_obj_str = cur_target.get_cytoscape(neighborhood_graph)
-                self.server.set_graph_data(cytoscape_obj_str, graph_title)
+                self.server.set_graph_data(bv, cytoscape_obj_str, graph_title)
 
     def push_new_graph(self, graph: nx.DiGraph, graph_name: Optional[str] = None):
         current_target = self.get_current_target()
@@ -384,7 +417,7 @@ class AriadneCore():
                 cur_graph_name = graph_name
             else:
                 cur_graph_name = f'Custom Graph ({current_target.target_name})'
-            self.server.set_graph_data(cytoscape_obj_str, cur_graph_name)
+            self.server.set_graph_data(current_target.bv, cytoscape_obj_str, cur_graph_name)
 
     def pop_history_cache(self, bv: BinaryView) -> list:
         if bv not in self.history_cache:

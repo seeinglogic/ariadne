@@ -8,6 +8,7 @@
 // globals
 //
 var json_contents;
+var cur_bv;
 var container;
 var websock;
 var cy;
@@ -108,13 +109,28 @@ function update_status() {
     status_elem = document.getElementById(status_element_name);
     if (status_elem) {
         var status = 'Inactive';
+        var cur_color = light_grey;
+
         if (typeof(websock) == 'object') {
-            if      (websock.readyState == 0) { status = 'Connecting...'; }
-            else if (websock.readyState == 1) { status = 'Connected'; }
-            else if (websock.readyState == 2) { status = 'Closing'; }
-            else if (websock.readyState == 3) { status = 'Closed'; }
+            if      (websock.readyState == 0) {
+                status = 'Connecting...';
+            }
+            else if (websock.readyState == 1) {
+                status = 'Connected';
+                cur_color = white;
+            }
+            else if (websock.readyState == 2) {
+                status = 'Closing';
+            }
+            else if (websock.readyState == 3) {
+                status = 'Closed';
+                cur_color = red;
+            }
         }
+
         status_elem.innerHTML = `Websocket ${status}`;
+        status_elem.style.color = cur_color;
+
     }
     else {
         console.log(`WARNING: update_status(): getElementById("${status_element_name}") failed`);
@@ -132,6 +148,7 @@ function js_init() {
   document.getElementById("hide_imports_btn").addEventListener("click", handleToggleImports);
   document.getElementById("toggle_coverage_btn").addEventListener("click", handleToggleCoverage);
   document.getElementById("redo_layout_btn").addEventListener("click", handleRedoLayout);
+  document.getElementById("get_new_neighborhood").addEventListener("click", handleGetNewNeighborhood);
 
   document.getElementById("func_search_input").addEventListener("input", handleSearchInputChange);
 
@@ -156,6 +173,7 @@ function js_init() {
 
     let parse_duration = performance.now() - parse_start_time;
     json_contents = model;
+    cur_bv = json_contents['bv'];
     log_status(`JSON parsed in ${parse_duration} milliseconds`);
 
     let render_start_time = performance.now()
@@ -275,6 +293,7 @@ function showSidebarMetadata() {
     delete function_metadata.visited;
     delete function_metadata.import;
     delete function_metadata.global_refs;
+    delete function_metadata.start;
 
     for (const kv of Object.entries(function_metadata)) {
         let key_name = kv[0]
@@ -464,6 +483,20 @@ function handleToggleImports( event ) {
 
 function handleRedoLayout( event ) {
     cy.layout(default_layout).run();
+}
+
+function handleGetNewNeighborhood( event ) {
+
+    if (focusedNode == null) {
+        return;
+    }
+    let target_function = {
+        'start':  focusedNode.data()['start'],
+        'bv': cur_bv,
+    }
+    let target_function_json = JSON.stringify(target_function);
+    websock.send(target_function_json);
+
 }
 
 function handleFuncSearch( event ) {

@@ -94,10 +94,22 @@ tr, td, thead, tbody {
 
 #btn_container {
     position: absolute;
-    right: 0.5em;
+    right: 0;
     bottom: 0;
     z-index: 998;
+
+    width: 40%;
+    overflow-y: auto;
 }
+
+#btn_container > .buttonRow {
+    float: right;
+}
+
+#btn_container > .buttonRow > button {
+    margin-bottom: 0.3em;
+}
+
 #title {
     position: absolute;
     left: 50%;
