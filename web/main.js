@@ -323,7 +323,6 @@ function showSidebarMetadata() {
 }
 
 function toggleSidebarExpansion(event) {
-    console.log(`toggleSidebarExpansion called w/expanded=${sidebarExpanded}`)
     let metadata_header = document.getElementById("sidebar_header");
 
     if (sidebarExpanded == true) {
@@ -356,6 +355,11 @@ function removeNode(node_to_remove) {
     if (focusedNode == node_to_remove) {
         removeFocus();
         focusedNode = null;
+    }
+
+    // if we're removing the focus node, we don't want to see the sidebar
+    if (sidebarExpanded == true) {
+        toggleSidebarExpansion({});
     }
 
     if (removedNodes == null) {
@@ -470,6 +474,9 @@ function handleToggleImports( event ) {
         hiddenImportEdges = hiddenImportNodes.connectedEdges();
 
         if (hiddenImportNodes.contains(focusedNode)) {
+            if (sidebarExpanded) {
+                toggleSidebarExpansion({});
+            }
             focusedNode = null;
             removeFocus();
         }
