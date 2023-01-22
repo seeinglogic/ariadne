@@ -1,6 +1,6 @@
 # Ariadne: Binary Ninja Graph Analysis Plugin
 
-Ariadne is a Binary Ninja plugin that serves a browser-based interactive graph
+[Ariadne](https://en.wikipedia.org/wiki/Ariadne#Mythology) is a Binary Ninja plugin that serves a browser-based interactive graph
 visualization for assisting reverse engineers. It implements some common static
 analysis tasks including call graph analysis, and can integrate block coverage
 information. This enables users to build interactive graphs and see exactly what
@@ -37,7 +37,7 @@ The quick rundown on what the shapes and colors on the graph mean:
   current graph (default: local neighborhood for active function in BN, see note
   below)
 - Functions that you've looked at in the BN UI have light blue borders
-- If you click on a node, it becomes the focus node
+- If you click on a node, it becomes the "focus node"
   - The focus node is colored purple
   - Out edges/nodes (callees) are colored pink
   - In edges/nodes (calleRs) are colored blue
@@ -115,6 +115,6 @@ great if you would open a GitHub issue on the repo here and describe the problem
 ## Thank you!
 
 To everyone who tries out this tool, it would mean a lot to me if you reach out
-and give me your thoughts on Twitter (@seeinglogic) or starring this repo. I
+and give me your thoughts on [Twitter](https://twitter.com/seeinglogic) or starring this repo. I
 hope this helps you or gives you ideas on how to look at things a little
 differently.
