@@ -1,4 +1,4 @@
-from typing import List, Dict, Callable, Any, Set
+from typing import List, Dict, Callable, Any, Set, Union
 import re
 
 from binaryninja import Function, LowLevelILOperation, LowLevelILInstruction, SymbolType
@@ -22,7 +22,7 @@ def get_cyclomatic_complexity(bv, function) -> Dict[str, Any]:
 
 def get_basic_attributes(bv, function) -> Dict[str, Any]:
     f = function
-    results = {}
+    results: Dict[str, Union[str, int]] = {}
     results['instructions'] = len(list(f.instructions))
     results['bytes'] = f.total_bytes
     results['num_args'] = len(f.parameter_vars)
