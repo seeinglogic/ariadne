@@ -47,22 +47,23 @@ def get_variable_refs(bv, function) -> Dict[str, Any]:
                 else:
                     get_pointers(operand)
 
-    for llil_inst in function.llil_instructions:
-        for var in get_pointers(llil_inst):
-            var_sym =  bv.get_symbol_at(var.address)
-            if var_sym:
-                var_name = var_sym.name
-            else:
-                var_name = f'data_{var.address:x}'
-            if re.search(r'char.*[\[0-9a-fx]\]', str(var.type)):
-                str_pointed_at = bv.get_ascii_string_at(var.address, min_length=1)
-                if str_pointed_at is not None:
-                    real_str = f'"{str_pointed_at.value}"'
+    if function.llil is not None:
+        for llil_inst in function.llil_instructions:
+            for var in get_pointers(llil_inst):
+                var_sym =  bv.get_symbol_at(var.address)
+                if var_sym:
+                    var_name = var_sym.name
                 else:
-                    real_str = '<Failed to get string>'
-                string_refs.add(f'{var_name}: {real_str}')
-            else:
-                global_vars.add(var_name)
+                    var_name = f'data_{var.address:x}'
+                if re.search(r'char.*[\[0-9a-fx]\]', str(var.type)):
+                    str_pointed_at = bv.get_ascii_string_at(var.address, min_length=1)
+                    if str_pointed_at is not None:
+                        real_str = f'"{str_pointed_at.value}"'
+                    else:
+                        real_str = '<Failed to get string>'
+                    string_refs.add(f'{var_name}: {real_str}')
+                else:
+                    global_vars.add(var_name)
 
     return {
         'string_refs': sorted(string_refs),

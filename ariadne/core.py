@@ -98,10 +98,10 @@ class BackgroundAnalysis(BackgroundTaskThread):
             target.mark_visited_set(visited_funcs)
 
             duration = time.time() - analysis_start_time
-            log_info(f'Analysis for {short_name(self.bv)} complete in {duration:.2f} seconds')
+            log_info(f'Analysis for "{short_name(self.bv)}" complete in {duration:.2f} seconds')
         else:
             duration = time.time() - start_time
-            log_info(f'Analysis for {short_name(self.bv)} cancelled after {duration:.2f} seconds')
+            log_info(f'Analysis for "{short_name(self.bv)}" cancelled after {duration:.2f} seconds')
 
 
 class AriadneCore():
@@ -223,7 +223,7 @@ class AriadneCore():
                 self.targets.pop(bv)
             else:
                 # Analysis is queued, bail
-                log_warn(f'Analysis for {short_name(bv.file)} queued but not finished')
+                log_warn(f'Analysis for "{short_name(bv.file)}" queued but not finished')
                 log_warn(f'  Use "ariadne -> Cancel Analysis" to cancel')
                 return
 

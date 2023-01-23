@@ -113,10 +113,14 @@ class AriadneFunction():
                 self.analysis_functions_run.append(function_name)
             except:
                 if function_name not in errored_funcs:
-                    log_error(f'Exception in analysis function "{function_name}"')
+                    log_error(
+                        f'Ariadne analysis function "{function_name}" threw an exception ' +
+                        f'on target function "{self.name}" @ {hex(self.address)}:'
+                    )
                     exception_str = traceback.format_exc()
                     for line in exception_str.split('\n'):
-                        log_error(line)
+                        if line.strip():
+                            log_error("  " + line)
                     errored_funcs.append(function_name)
 
     def init_visited(self):
@@ -151,4 +155,4 @@ if __name__ == '__main__':
         #metadata_str = pprint.pformat(a.metadata)
         #print(a.name, hex(a.address), metadata_str)
     duration = time.time() - start
-    print(f'Finished functino analysis in {duration:.2f} seconds')
+    print(f'Finished function analysis in {duration:.2f} seconds')
