@@ -44,8 +44,11 @@ def load_target_analysis(bv: BinaryView):
         log_info(f'Navigate to http://{core.ip}:{core.http_port} for interactive graph')
     else:
         show_message_box(
-            f'No Saved Analysis Found',
-            f'No analysis for "{short_name(bv)}" was found',
+            f'Failed to load analysis from file',
+            (
+                f'Saved analysis not found or failed to load for "{short_name(bv)}".' +
+                '\n\nCheck the log window for details'
+            ),
             icon=MessageBoxIcon.ErrorIcon,
         )
 

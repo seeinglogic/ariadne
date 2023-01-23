@@ -196,6 +196,9 @@ class AriadneCore():
             analysis_json = f.read()
 
         new_target = AriadneTarget.deserialize(bv, self, analysis_json)
+        if new_target is None:
+            return False
+
         if bv not in self.bvs:
             self.bvs.append(bv)
 
@@ -264,8 +267,10 @@ class AriadneCore():
                 ['Yes', 'No']
             )
             if isinstance(user_choice, int) and user_choice == 0:
-                self.load_analysis_from_file(bv)
-                return
+                if self.load_analysis_from_file(bv):
+                    return
+                else:
+                    log_info('Failed to load cached analysis; continuing with analysis from scratch.')
 
         log_info(f'Starting analysis for "{short_name(bv)}"...')
         cur_analysis_task = BackgroundAnalysis(bv, self)

@@ -51,14 +51,15 @@ class AriadneTarget():
         bv: BinaryView,
         core,
         serialized_dict: str
-    ) -> AriadneTarget:
+    ) -> Optional[AriadneTarget]:
         new_target = AriadneTarget(bv, core)
         saved_dict = json.loads(serialized_dict)
 
         saved_name = Path(saved_dict['target_name'])
         cur_name = Path(new_target.target_name)
         if saved_name.stem != cur_name.stem:
-            raise Exception(f'ERROR: saved target_name ({saved_name}) does not match current: ({cur_name})')
+            log_error(f'ERROR: saved target_name ({saved_name}) does not match current: ({cur_name})')
+            return None
 
         analysis_funcs = saved_dict['analysis_functions_run']
         saved_ariadne_funcs = saved_dict['ariadne_functions']
@@ -67,7 +68,9 @@ class AriadneTarget():
         num_funcs = len(function_list)
         num_saved_funcs = len(saved_ariadne_funcs)
         if num_funcs != num_saved_funcs:
-            log_error(f'Mismatch between number of bv funcs ({num_funcs}) and saved funcs ({num_saved_funcs})')
+            log_warn(f'Encountered mismatch between number of functions in current BinaryView ({num_funcs}) and saved analysis ({num_saved_funcs})')
+            log_warn('If the binary has not changed, you must save the result of new analysis.')
+            return None
         new_target.function_list = function_list
 
         for af_dict in saved_dict['ariadne_functions']:
