@@ -118,6 +118,8 @@ class AriadneCore():
         self.graph_frozen = False
         self.cache_dir = get_repo_dir().joinpath('cache')
         self.current_bv: Optional[BinaryView] = None
+        self.force_load_from_cache = False
+        self.force_cache_overwrite = False
         # FUTURE: expose these as plugin settings
         self.neighborhood_hops = 3
         self.max_nodes_to_show = 50
@@ -166,7 +168,7 @@ class AriadneCore():
             self.cache_dir.mkdir()
 
         cache_file = self.get_cache_target(bv)
-        if cache_file.exists():
+        if cache_file.exists() and self.force_cache_overwrite is False:
             user_choice = get_choice_input(
                 f'Existing analysis file for {short_name(bv)} found, overwrite it?',
                 'Overwrite Saved Analysis?',
@@ -261,12 +263,18 @@ class AriadneCore():
 
         cached_analysis_file = self.get_cache_target(bv)
         if cached_analysis_file.exists():
-            user_choice = get_choice_input(
-                f'Cached analysis for {short_name(bv)} found, load from file?',
-                'Load Saved Analysis?',
-                ['Yes', 'No']
-            )
-            if isinstance(user_choice, int) and user_choice == 0:
+            # set core.load_from_cache = True to avoid prompts
+            load_from_cache = self.force_load_from_cache
+            if not load_from_cache:
+                user_choice = get_choice_input(
+                    f'Cached analysis for {short_name(bv)} found, load from file?',
+                    'Load Saved Analysis?',
+                    ['Yes', 'No']
+                )
+                if isinstance(user_choice, int) and user_choice == 0:
+                    load_from_cache = True
+
+            if load_from_cache:
                 if self.load_analysis_from_file(bv):
                     return
                 else:

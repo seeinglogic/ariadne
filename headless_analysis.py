@@ -1,14 +1,16 @@
 #!/usr/bin/python3
 
 '''
-Perform Ariadne analysis via headless script (requires commercial BN license).
+Perform Ariadne analysis via headless script (requires commercial BN license)
+and save the result to a file for faster loading later.
 
 Helpful for pre-processing on a server or remote machine.
 
-Can also incorporate coverage analysis from bncov and save it.
+Can also incorporate coverage analysis from bncov as part of the analysis.
 '''
 
 from typing import Optional
+import argparse
 import math
 import os
 import sys
@@ -47,15 +49,20 @@ def pretty_size(filename):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) not in (2,3):
-        print(USAGE)
-        exit(2)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('TARGET', help='Binary or bndb to analyze and save data for')
+    parser.add_argument('-c', '--coverage_dir', help='Directory containing coverage files for target')
+    parser.add_argument('--load_existing', help='Load cached Ariadne analysis file', action='store_true')
+    parser.add_argument('--overwrite_existing', help='Overwrite cached Ariadne analysis file (if it exists)',
+                        action="store_true")
+    parser.add_argument
+    args = parser.parse_args()
 
-    target = sys.argv[1]
-    coverage_dir: Optional[str] = None
-    if len(sys.argv) == 3:
+    target = args.TARGET
+    coverage_dir: Optional[str] = args.coverage_dir
+    if coverage_dir:
+        # Check that we have bncov first, then that the directory exists
         if coverage_enabled:
-            coverage_dir = sys.argv[2]
             if not os.path.exists(coverage_dir):
                 print(f'[!] Coverage dir "{coverage_dir}" not found')
                 exit(2)
@@ -83,6 +90,11 @@ if __name__ == '__main__':
 
     print('[*] Instantiating Ariadne core')
     core = ariadne.AriadneCore()
+
+    if args.load_existing:
+        core.force_load_from_cache = True
+    if args.overwrite_existing:
+        core.force_cache_overwrite = True
 
     print('[*] Queuing analysis')
     analysis_start = time.time()
