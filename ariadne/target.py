@@ -124,6 +124,7 @@ class AriadneTarget():
                 'instructions': self.function_dict[cur_func].metadata['instructions'],
                 'complexity': self.function_dict[cur_func].metadata['complexity'],
                 'num_descendants': self.function_dict[cur_func].metadata['num_descendants'],
+                'descendent_complexity': self.function_dict[cur_func].metadata.get('descendent_complexity'),
                 'callers': self.function_dict[cur_func].metadata['callers'],
                 'local_callees': self.function_dict[cur_func].metadata['local_callees'],
                 'imported_callees': self.function_dict[cur_func].metadata['imported_callees'],
@@ -137,7 +138,6 @@ class AriadneTarget():
                 'blocks_covered': self.function_dict[cur_func].metadata.get('blocks_covered'),
                 'blocks_total': self.function_dict[cur_func].metadata.get('blocks_total'),
                 'callsite_coverage': self.function_dict[cur_func].metadata.get('callsite_coverage'),
-                'descendent_complexity': self.function_dict[cur_func].metadata.get('descendent_complexity'),
                 'uncovered_descendent_complexity': self.function_dict[cur_func].metadata.get('uncovered_descendent_complexity'),
                 # Hint for the user that there's more to see from this node
                 'edges_not_shown': abs(graph.degree(cur_func) - self.g.degree(cur_func)),
@@ -225,6 +225,11 @@ class AriadneTarget():
         for bn_func, ariadne_func in self.function_dict.items():
             ariadne_func.metadata['num_descendants'] = len(nx.descendants(self.g, bn_func))
 
+            func_descendents = nx.descendants(self.g, bn_func)
+            # complexity is always computed in core analysis
+            descendent_complexity = sum(self.function_dict[f].metadata['complexity'] for f in func_descendents)
+            ariadne_func.metadata['descendent_complexity'] = descendent_complexity
+
     def do_coverage_analysis(self, covdb) -> bool:
         """Single-threaded all-in-one coverage analysis
 
@@ -282,9 +287,7 @@ class AriadneTarget():
         ariadne_func.metadata['blocks_total'] = cur_func_stats.blocks_total
 
         total_descendents = nx.descendants(self.g, bn_func)
-        descendent_complexity = sum(self.coverage_stats[f.start].complexity for f in total_descendents)
-        ariadne_func.metadata['descendent_complexity'] = descendent_complexity
-        # Show complexity of strictly zero-coverage descendents
+        # complexity for strictly zero-coverage descendents
         uncovered_descendent_complexity = sum(
             self.coverage_stats[f.start].complexity for f in total_descendents
             if self.coverage_stats[f.start].blocks_covered == 0
