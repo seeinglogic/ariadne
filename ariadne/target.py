@@ -195,6 +195,10 @@ class AriadneTarget():
         near_neighbor_graph: nx.Graph = self.g.subgraph(to_add)
         return near_neighbor_graph
 
+    def get_n_hops_out(self, source: Function, dist: int) -> nx.DiGraph:
+        graph = self.get_callgraph()
+        return nx.bfs_tree(graph, source, False, dist)
+
     def get_source_sink(self, source: Function, sink: Function) -> nx.DiGraph:
         """Show graph between source and sink, if any"""
         if not self.g:

@@ -8,7 +8,7 @@ import networkx as nx
 from binaryninja import BinaryView, Function, BackgroundTaskThread, get_choice_input
 
 from .analysis.ariadne_function import AriadneFunction, get_analyzed_function
-from .util_funcs import short_name, log_info, log_warn, log_error, func_name, get_repo_dir
+from .util_funcs import short_name, log_info, log_warn, log_error, log_debug, func_name, get_repo_dir
 from .target import AriadneTarget
 from .server import AriadneServer
 
@@ -306,13 +306,14 @@ class AriadneCore():
         neighborhood_graph = analysis_result.get_near_neighbors(current_function, self.neighborhood_hops, self.max_nodes_to_show)
         num_nodes = len(neighborhood_graph.nodes())
         num_edges = len(neighborhood_graph.edges())
-        log_info(f'Initial func ({func_name(current_function)}) neighborhood: {num_nodes} nodes, {num_edges} edges')
+        log_debug(f'Initial func ({func_name(current_function)}) neighborhood: {num_nodes} nodes, {num_edges} edges')
         graph_title = f'Neighborhood of "{func_name(current_function)}"'
 
         cytoscape_obj = analysis_result.get_cytoscape(neighborhood_graph)
         self.server.set_graph_data(bv, cytoscape_obj, graph_title)
 
-        log_info(f'Navigate to http://{self.ip}:{self.http_port} for interactive graph')
+        log_info('For interactive graph, navigate to:')
+        log_info(f'http://{self.ip}:{self.http_port}')
 
     def graph_new_neighborhood(self, bv_name: str, start: int):
         """Push the neighborhood of the specified function to the graph.
@@ -464,3 +465,14 @@ class AriadneCore():
             return self.targets[self.current_bv]
         else:
             return None
+
+    def get_n_hops_from(self, function: Function, dist: int) -> nx.DiGraph:
+        bv = function.view
+        if bv not in self.targets:
+            if bv not in self.bvs:
+                raise KeyError(f'BinaryView for {func_name(function)} never queued for analysis')
+            else:
+                raise KeyError(f'Analysis incomplete for BinaryView of {func_name(function)}')
+
+        target = self.targets[bv]
+        return target.get_n_hops_out(function, dist)

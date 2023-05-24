@@ -7,6 +7,7 @@ from binaryninja import (
     log_info as bn_log_info,
     log_warn as bn_log_warn,
     log_error as bn_log_error,
+    log_debug as bn_log_debug,
 )
 
 
@@ -28,6 +29,9 @@ def graph_size(g: nx.Graph) -> str:
     num_edges = len(g.edges())
     return f'({num_nodes} nodes, {num_edges} edges)'
 
+
+def log_debug(msg: str, tag: str='ARIADNE'):
+    bn_log_debug(msg, tag)
 
 def log_info(msg: str, tag: str='ARIADNE'):
     bn_log_info(msg, tag)
