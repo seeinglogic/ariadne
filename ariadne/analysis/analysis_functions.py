@@ -48,7 +48,7 @@ def get_variable_refs(bv, function) -> Dict[str, Any]:
                     get_pointers(operand)
 
     if function.llil is not None:
-        for llil_inst in function.llil_instructions:
+        for llil_inst in function.llil.instructions:
             for var in get_pointers(llil_inst):
                 var_sym =  bv.get_symbol_at(var.address)
                 if var_sym:

@@ -312,7 +312,7 @@ class AriadneCore():
         cytoscape_obj = analysis_result.get_cytoscape(neighborhood_graph)
         self.server.set_graph_data(bv, cytoscape_obj, graph_title)
 
-        log_info('For interactive graph, navigate to:')
+        log_info('To see the interactive graph, open the following url in a browser:')
         log_info(f'http://{self.ip}:{self.http_port}')
 
     def graph_new_neighborhood(self, bv_name: str, start: int):
