@@ -53,6 +53,8 @@ the web UI.
 
 ## Motivation
 
+[Longer blog post on motivation](https://seeinglogic.com/posts/why-of-ariadne/)
+
 This tool is a proof-of-concept that was built to fill a gap that we observed in
 our own reverse-engineering workflows, with the goals of being highly
 configurable and to help make reverse-engineering faster.
@@ -67,17 +69,20 @@ there are places for per-function and target-wide analysis.
 
 ## Common Workflows
 
+Ariadne was built to handle some common workflows encountered in RE and fuzzing:
+
 - Source/Sink analysis: Context command allows you to select a function and see
   all the paths to/from the current function in the web UI. ![source-sink](screenshots/source_sink.png)
 - Coverage analysis via [bncov](https://github.com/ForAllSecure/bncov): allows
   visualization of coverage and shows where your coverage stops and uncovered
   complexity resides. Requires bncov, but if coverage information is detected
   before analysis starts it will automatically be added, or it can be added
-  separately. ![Coverage View](screenshots/coverage_analysis.png)
-  - The Descendent Complexity statistics ("total" as well as "uncovered") show
+  separately. [More in-depth post on coverage automation and Ariadne](https://seeinglogic.com/posts/automated-coverage-analysis/)
+  - The Descendent Complexity metrics ("uncovered" as well as the normal one) show
     the sum of complexity for all functions reachable from a given function as
     well as the sum for just functions with zero coverage. Very useful for
     fuzzing!
+  ![Coverage View](screenshots/coverage_analysis.png)
 - Import Hiding: Sometimes imports are helpful, other times they just convolute
   the graph because it's more important to see just the internal functions
 - Custom graphs: create any graph based on the target's graph (`ariadne.core.targets[bv].g`) and push it to the web UI with `ariadne.core.push_new_graph(new_graph)`
