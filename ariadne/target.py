@@ -28,6 +28,9 @@ class AriadneTarget():
         self.current_function: Optional[Function] = None
         self.banned_functions: Set[Function] = set()
         self.coverage_available = False
+        self.update_notification: Optional[BinaryDataNotification] = None
+        self.update_thread: Optional[BackgroundTargetUpdate] = None
+        self.warned_missing_funcs = False
         # Optional bncov data
         self.coverage_stats: Optional[dict] = None
         self.covdb = None
@@ -329,6 +332,14 @@ class AriadneTarget():
             self.mark_visited(function)
 
     def mark_visited(self, function: Function):
+        if function not in self.function_dict:
+            log_warn(f'Function "{function.name}" @ {hex(function.start)} not found in Ariadne target analysis')
+            if not self.warned_missing_funcs:
+                log_info('If analysis is not currently underway, you can add it manually with:')
+                log_info('  ariadne.core.targets[bv].add_new_function(current_function)')
+                log_info('Or you can redo analysis via context menu: Ariadne -> Analyze Target')
+                self.warned_missing_funcs = True
+            return
         ariadne_function = self.function_dict[function]
         ariadne_function.set_visited()
 
