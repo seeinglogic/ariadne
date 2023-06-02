@@ -297,20 +297,21 @@ class AriadneCore():
             current_function = self.current_function_map[bv]
         else:
             current_function = bv.entry_function
-        analysis_result.set_current_function(current_function)
-        # Set the initial graph
-        callgraph = analysis_result.get_callgraph()
-        num_nodes = len(callgraph.nodes())
-        num_edges = len(callgraph.edges())
 
-        neighborhood_graph = analysis_result.get_near_neighbors(current_function, self.neighborhood_hops, self.max_nodes_to_show)
-        num_nodes = len(neighborhood_graph.nodes())
-        num_edges = len(neighborhood_graph.edges())
-        log_debug(f'Initial func ({func_name(current_function)}) neighborhood: {num_nodes} nodes, {num_edges} edges')
-        graph_title = f'Neighborhood of "{func_name(current_function)}"'
+        # Set the initial graph on the current function if possible
+        if analysis_result.set_current_function(current_function):
+            callgraph = analysis_result.get_callgraph()
+            num_nodes = len(callgraph.nodes())
+            num_edges = len(callgraph.edges())
 
-        cytoscape_obj = analysis_result.get_cytoscape(neighborhood_graph)
-        self.server.set_graph_data(bv, cytoscape_obj, graph_title)
+            neighborhood_graph = analysis_result.get_near_neighbors(current_function, self.neighborhood_hops, self.max_nodes_to_show)
+            num_nodes = len(neighborhood_graph.nodes())
+            num_edges = len(neighborhood_graph.edges())
+            log_debug(f'Initial func ({func_name(current_function)}) neighborhood: {num_nodes} nodes, {num_edges} edges')
+            graph_title = f'Neighborhood of "{func_name(current_function)}"'
+
+            cytoscape_obj = analysis_result.get_cytoscape(neighborhood_graph)
+            self.server.set_graph_data(bv, cytoscape_obj, graph_title)
 
         log_info('To see the interactive graph, open the following url in a browser:')
         log_info(f'http://{self.ip}:{self.http_port}')
@@ -339,13 +340,12 @@ class AriadneCore():
             return
 
         # Style the new function as the "current function" in the graph
-        cur_target.set_current_function(cur_func, do_visit=False)
+        if cur_target.set_current_function(cur_func, do_visit=False):
+            neighborhood_graph = cur_target.get_near_neighbors(cur_func, self.neighborhood_hops, self.max_nodes_to_show)
+            graph_title = f'Neighborhood of "{func_name(cur_func)}"'
 
-        neighborhood_graph = cur_target.get_near_neighbors(cur_func, self.neighborhood_hops, self.max_nodes_to_show)
-        graph_title = f'Neighborhood of "{func_name(cur_func)}"'
-
-        cytoscape_obj = cur_target.get_cytoscape(neighborhood_graph)
-        self.server.set_graph_data(bv, cytoscape_obj, graph_title)
+            cytoscape_obj = cur_target.get_cytoscape(neighborhood_graph)
+            self.server.set_graph_data(bv, cytoscape_obj, graph_title)
 
 
     def do_coverage_analysis(self, bv: BinaryView):
@@ -413,8 +413,7 @@ class AriadneCore():
             self.history_cache.setdefault(bv, []).append(function)
         else:
             cur_target = self.targets[bv]
-            cur_target.set_current_function(function)
-            if self.graph_frozen is False:
+            if cur_target.set_current_function(function) and self.graph_frozen is False:
                 neighborhood_graph = cur_target.get_near_neighbors(function, self.neighborhood_hops, self.max_nodes_to_show)
                 num_nodes = len(neighborhood_graph.nodes())
                 num_edges = len(neighborhood_graph.edges())

@@ -326,12 +326,7 @@ class AriadneTarget():
     def mark_coverage_analysis_finished(self):
         self.coverage_available = True
 
-    def set_current_function(self, function: Function, do_visit: bool = True):
-        self.current_function = function
-        if do_visit:
-            self.mark_visited(function)
-
-    def mark_visited(self, function: Function):
+    def set_current_function(self, function: Function, do_visit: bool = True) -> bool:
         if function not in self.function_dict:
             log_warn(f'Function "{function.name}" @ {hex(function.start)} not found in Ariadne target analysis')
             if not self.warned_missing_funcs:
@@ -339,7 +334,15 @@ class AriadneTarget():
                 log_info('  ariadne.core.targets[bv].add_new_function(current_function)')
                 log_info('Or you can redo analysis via context menu: Ariadne -> Analyze Target')
                 self.warned_missing_funcs = True
-            return
+            return False
+        self.current_function = function
+        if do_visit:
+            self.mark_visited(function)
+        return True
+
+    def mark_visited(self, function: Function):
+        if function not in self.function_dict:
+            log_error(f'Function "{function.name}" @ {hex(function.start)} not found in Ariadne target analysis')
         ariadne_function = self.function_dict[function]
         ariadne_function.set_visited()
 
