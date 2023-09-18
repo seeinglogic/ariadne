@@ -10,7 +10,7 @@ they are interested in.
 
 ## Quickstart
 
-1. Install this plugin via the Plugin Manager or clone this repo to your Binary
+1. Install this plugin via the Plugin Manager, OR clone this repo to your Binary
   Ninja [plugins folder](https://docs.binary.ninja/getting-started.html#user-folder)
   - NOTE: If you install by cloning the repo, you may need to install the Python
   dependencies in `requirements.txt`. Use the command palette (`CTRL+P` or
