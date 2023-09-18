@@ -75,11 +75,12 @@ class AriadneFuncWidget(QWidget, DockContextHandler):
             self.metadata_loaded = True
         self.set_textbox(function_metadata)
 
-    def set_current_function(self, function: Function):
+    def update_current_function(self, function: Function):
         function_name = func_name(function)
         function_start = function.start
         self.function_info.setText(f'{function_name} @ 0x{function_start:x}')
         if function != self.current_function:
+            # If the target doesn't have this function, this will return false
             self.core.add_function_transition(function)
             self.add_transition(function)
         # If metadata wasn't loaded and we're still on the same function,
@@ -95,7 +96,7 @@ class AriadneFuncWidget(QWidget, DockContextHandler):
             current_function_list = self.bv.get_functions_containing(offset)
             if current_function_list:
                 current_function = current_function_list[0]
-                self.set_current_function(current_function)
+                self.update_current_function(current_function)
                 if len(current_function_list) > 1:
                     log_info(f'More than one function contains 0x{offset:x}, ' +
                              f'picked {func_name(current_function)}')
