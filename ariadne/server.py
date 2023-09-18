@@ -57,7 +57,7 @@ def run_http_server(address: str, port: int):
     handler = AriadneHTTPHandler
     os.chdir(get_web_dir())
     with HTTPServer((address, port), handler) as httpd:
-        log_info(f'Serving web UI at http://{address}/{port}', 'ARIADNE:HTTP')
+        log_info(f'Serving web UI at http://{address}:{port}', 'ARIADNE:HTTP')
         httpd.serve_forever()
 
 
