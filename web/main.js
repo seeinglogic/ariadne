@@ -31,6 +31,7 @@ log_status("Websocket url: " + websock_url);
 // colors
 var blue = '#80C6E7';
 var dark_blue = '#5180c2';
+var darker_blue = '#2130a2';
 var light_green = '#A2D9AF';
 var green = '#368448';
 var dark_green = '#1b4325';
@@ -74,11 +75,27 @@ var klay_layout = {
     name: 'klay',
     nodeDimensionsIncludeLabels: true,
     klay: {
-    'direction': 'DOWN'
+    //'direction': 'DOWN'
+    //'direction': 'RIGHT'
     },
     padding: 50, // padding pixels around edge to avoid colliding with controls
 }
-var default_layout = klay_layout;
+var dagre_layout = {
+    name: 'dagre',
+    nodeDimensionsIncludeLabels: true,
+    rankDir: 'LR',
+    padding: 100, // extra padding for LR
+}
+var ud_dagre_layout = {
+    name: 'dagre',
+    nodeDimensionsIncludeLabels: true,
+    rankDir: 'UD',
+    padding: 50,
+}
+
+//var default_layout = klay_layout;
+var default_layout = dagre_layout;
+
 
 
 //
@@ -596,6 +613,10 @@ function handleResetGraph( event ) {
     if (json_contents) {
         renderCytoscape(json_contents);
     }
+}
+
+function reloadCytoscape() {
+    renderCytoscape(json_contents);
 }
 
 //

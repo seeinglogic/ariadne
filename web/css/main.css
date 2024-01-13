@@ -97,7 +97,7 @@ tr, td, thead, tbody {
     bottom: 0;
     z-index: 998;
 
-    width: 40%;
+    width: 50%;
     overflow-y: auto;
 }
 
