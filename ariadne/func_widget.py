@@ -139,7 +139,7 @@ class AriadneFuncWidgetType(SidebarWidgetType):
         # This callback is called when a widget needs to be created for a given context. Different
         # widgets are created for each unique BinaryView. They are created on demand when the sidebar
         # widget is visible and the BinaryView becomes active.
-        return AriadneFuncWidget("Ariadne", frame, bv, self.core)
+        return AriadneFuncWidget("Ariadne Function Pane", frame, bv, self.core)
 
     def defaultLocation(self):
         # Default location in the sidebar where this widget will appear
