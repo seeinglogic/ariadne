@@ -15,16 +15,14 @@ core = AriadneCore()
 
 
 if core_ui_enabled():
-    from . import docking
-    from .func_widget import AriadneFuncWidget
+    from .func_widget import AriadneFuncWidgetType
 
     # Start serving graph visualization over HTTP
     core.start_server()
 
     from PySide6.QtCore import Qt
-    docking.register_widget(
-        AriadneFuncWidget, "Ariadne Function Pane", Qt.RightDockWidgetArea, Qt.Vertical, True, core
-    )
+    from binaryninjaui import Sidebar
+    Sidebar.addSidebarWidgetType(AriadneFuncWidgetType(core))
 
 
 def analyze_current_target(bv: BinaryView):
