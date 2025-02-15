@@ -18,7 +18,7 @@ they are interested in.
   requirements.txt into the dialog.
 2. Open a binary in Binary Ninja
 3. Right click: Plugins > Ariadne > Analyze Target
-4. Watch the log and wait for analysis to complete
+4. Open the Ariadne Sidebar (`A` icon in upper right by default) and wait for analysis to complete (watch log for issues)
 5. Open a browser and surf to `http://localhost:8800` to view the interactive
    graph (web UI)
 6. Navigate around in Binary Ninja; the graph will update when the current
@@ -116,6 +116,8 @@ reset the UI.
 Unhandled Python exceptions on startup or during processing are bugs and it'd be
 great if you would open a GitHub issue on the repo here and describe the problem
 (and include a binary to reproduce the problem, if possible).
+
+...And of course, PR's are always welcome!
 
 ## Thank you!
 
