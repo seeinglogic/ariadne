@@ -72,7 +72,7 @@ async def read_client(websocket):
     client_msg = await websocket.recv()
 
 
-async def websocket_handler(websocket, path):
+async def websocket_handler(websocket):
     global json_contents, client_msg
     log_info('Websocket Client connected', 'ARIADNE:WS')
     # Wait until graph JSON is available
@@ -153,10 +153,20 @@ class AriadneServer():
         try:
             event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(event_loop)
-            start_server = websockets.serve(websocket_handler, self.ip, self.websocket_port)
+
+            task = event_loop.create_task(run_server(self.ip, self.websocket_port))
             #log_info(f'Websocket listening on {self.ip}:{self.websocket_port}...', 'ARIADNE:WS')
-            event_loop.run_until_complete(start_server)
+
+            event_loop.run_until_complete(task)
             event_loop.run_forever()
         except Exception as e:
             log_error(f'Caught Exception: {e}', 'ARIADNE:WS')
             log_error(f'Websocket server stopping...', 'ARIADNE:WS')
+
+async def run_server(ip, port):
+    await asyncio.sleep(0)
+
+    try:
+        await websockets.serve(websocket_handler, ip, port)
+    except Exception as e:
+        log_error(f'Caught Exception: {e}', 'ARIADNE:WS')

@@ -2,20 +2,22 @@
 from typing import Optional
 
 from binaryninja import BinaryView, Function
-from binaryninjaui import DockContextHandler, getMonospaceFont
+from binaryninjaui import getMonospaceFont, SidebarWidget, SidebarWidgetType, SidebarWidgetLocation, SidebarContextSensitivity
 
 import binaryninjaui
 if "qt_major_version" in dir(binaryninjaui) and binaryninjaui.qt_major_version == 6:
-    from PySide6.QtWidgets import QPlainTextEdit, QVBoxLayout, QFormLayout, QLabel, QWidget
-    from PySide6.QtGui import QFontMetrics
+    from PySide6.QtCore import QRectF, Qt
+    from PySide6.QtWidgets import QPlainTextEdit, QVBoxLayout, QFormLayout, QLabel, QFrame
+    from PySide6.QtGui import QFontMetrics, QImage, QPainter, QFont, QColor
 else:
+    from PySide2.QtCore import QRectF, Qt
     from PySide2.QtWidgets import QPlainTextEdit, QVBoxLayout, QFormLayout, QLabel, QWidget
-    from PySide2.QtGui import QFontMetrics
+    from PySide2.QtGui import QFontMetrics, QImage, QPainter, QFont, QColor
 
 from .core import AriadneCore
 from .util_funcs import log_info, func_name
 
-class AriadneFuncWidget(QWidget, DockContextHandler):
+class AriadneFuncWidget(SidebarWidget):
     """
     Shows dynamic graphs in a widget
     """
@@ -23,7 +25,7 @@ class AriadneFuncWidget(QWidget, DockContextHandler):
     # The currently focused BinaryView.
     bv: Optional[BinaryView] = None
 
-    def __init__(self, parent: QWidget, name: str, bv: Optional[BinaryView], core: AriadneCore):
+    def __init__(self, name: str, frame: QFrame, bv: Optional[BinaryView], core: AriadneCore):
         """
         Initialize a new AriadneGraphWidget.
 
@@ -38,8 +40,7 @@ class AriadneFuncWidget(QWidget, DockContextHandler):
         self.current_function = None
         self.metadata_loaded = False
 
-        QWidget.__init__(self, parent)
-        DockContextHandler.__init__(self, self, name)
+        SidebarWidget.__init__(self, name)
 
         header_layout = QFormLayout()
         self.function_info = QLabel("")
@@ -111,3 +112,43 @@ class AriadneFuncWidget(QWidget, DockContextHandler):
             new_bv = view_frame.getCurrentViewInterface().getData()
             # No need for any special handling when the BV changes
             self.bv = new_bv
+
+class AriadneFuncWidgetType(SidebarWidgetType):
+    core: AriadneCore
+
+    def __init__(self, _core: AriadneCore):
+        self.core = _core
+        # Sidebar icons are 28x28 points. Should be at least 56x56 pixels for
+        # HiDPI display compatibility. They will be automatically made theme
+        # aware, so you need only provide a grayscale image, where white is
+        # the color of the shape.
+        icon = QImage(56, 56, QImage.Format_RGB32)
+        icon.fill(0)
+
+        # Render an "H" as the example icon
+        p = QPainter()
+        p.begin(icon)
+        p.setFont(QFont("Open Sans", 56))
+        p.setPen(QColor(255, 255, 255, 255))
+        p.drawText(QRectF(0, 0, 56, 56), Qt.AlignCenter, "A")
+        p.end()
+
+        SidebarWidgetType.__init__(self, icon, "Ariadne Function Pane")
+
+    def createWidget(self, frame, bv):
+        # This callback is called when a widget needs to be created for a given context. Different
+        # widgets are created for each unique BinaryView. They are created on demand when the sidebar
+        # widget is visible and the BinaryView becomes active.
+        return AriadneFuncWidget("Ariadne Function Pane", frame, bv, self.core)
+
+    def defaultLocation(self):
+        # Default location in the sidebar where this widget will appear
+        return SidebarWidgetLocation.RightContent
+
+    def contextSensitivity(self):
+        # Context sensitivity controls which contexts have separate instances of the sidebar widget.
+        # Using `contextSensitivity` instead of the deprecated `viewSensitive` callback allows sidebar
+        # widget implementations to reduce resource usage.
+
+        # This example widget uses a single instance and detects view changes.
+        return SidebarContextSensitivity.SelfManagedSidebarContext
